@@ -11,3 +11,5 @@ Contents:
 **/essential-rust**.   [Some random files on Rust concepts]
 
 **/trpl**.             [Notes on "The Rust Programming Language" book]
+
+**/udemy-course**.     [Notes & exercises on the Udemy Rust Course]
