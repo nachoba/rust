@@ -1,0 +1,180 @@
+Rust Essentials
+===============
+Chapter 1 :: Starting with Rust
+-------------------------------
+Rust is a systems programming language, equaling C and C++ in its capabilities.
+It rivals idiomatic C++ in speed, but it lets you work in a much safer way by
+forbidding the use of code that could cause program crashes due to memory pro-
+blems. Moreover, Rust has the built-in functionality necessary for concurent
+execution on multicore machines; it makes concurrent programming memory safe 
+without garbage collection -it is the only language that does this. Rust also
+eliminates the corruption of shared data through concurrent access, also known
+as "data races".
+
+In this chapter we will cover the following:
+
+    * The advantages of Rust
+    * The trifecta of Rust: safety, speed, and concurrency
+    * Using Rust
+    * Installing Rust
+    * The Rust compiler: rustc
+    * Building your first program
+    * Working with Cargo
+    * Developer tools
+
+
+The Advantages of Rust
+----------------------
+Programming languages such as C, and C++ bring you total control over hardware,
+but are prone to errors like crashes, memory leaks, segmentation faults, buf-
+fer overflows, and null pointers. Rust is designed from the ground up to avoid
+these kinds of problems.
+On the other hand laguanges like Haskell are very safe, but have little or no 
+control of the level of memory allocation and other hardware resources. In the 
+middle you have laguages like Python/Ruby/Java/C#. Rust, on the other hand, co-
+vers all the spectrum giving you total control with reasonable safety. So with 
+Rust you have:
+
+    * High safety through its strong type system 
+    * Deep but safe control over low-level resources so that it runs close to 
+      the hardware 
+
+Rust lets you specify exactly how your values should be laid out in memory and
+how that memory should be managed; this is why it works well at both ends of
+the control and safety line. With Rust, control and safety can be achieved
+together without losing performance.
+Rust can work with minimal runtime or even no runtime at all; so it can be used
+for real time or embedded projects.
+
+The trifecta of Rust: Safety, Speed, and concurrency
+----------------------------------------------------
+The Rust developers designed Rust to be a general-purpose and multi-paradigm
+language. Like C++, it is an imperative, structured and object-oriented lan-
+guage. But it inherits a lot from functional programming languages and also
+incorporates advanced techniques for concurrent programming.
+
+In Rust, the typing of variables is static and strong. However, the developer
+is not forced to indicate the types for every thing as the Rust compiler is
+able to infer the types in many cases.
+
+Rust compiles to native code like Go and Julia, however Rust does not need
+runtime with garbage collection. It also differs from Java and C# in that it
+doesn't run on a virtual machine. And also it's different from Python, Ruby in
+that it compiles to native code and not bytecode.
+For concurrency Rust adopts the well-known actor model from Erlang. Lightweight
+processes called threads perform work in parallel.
+
+Other aspects of Rust are:
+
+    * Its variables are immutable by default
+    * Enums
+    * Pattern matching
+    * Generics
+    * Higher-order functions and closures
+    * An interface system based on traits
+    * A hygienic macro system
+    * Zero cost abstractions, which means that Rust has higher-language cons-
+      tructs, but these do not have an impact on performance.
+
+Working with Cargo
+------------------
+Cargo is Rust's package and dependency manager. Although you can write Rust
+programs without it, Cargo is nearly indispensable for any large project; it
+works the same whether you work on Windows, Linux, or macOS.
+Cargo does the following things for you:
+
+    * It makes a tidy folder structure and some templates for your projects
+      with the "cargo new" command
+    * It compiles (builds) your code by using the "cargo build" command
+    * It runs your project by using "cargo run"
+    * If your project contains unit tests, it can execute them for you by using
+      "cargo test"
+    * If your project depends on packages, it will download them and build
+      these packages according to the needs of your code by using "cargo update"
+
+For more information you can go here: http://doc.crates.io/guide.html
+
+Let's make our first project "welcome" using Cargo:
+
+1. Start a new project "welcome" using the following command:
+    cargo new welcome --bin
+
+   The --bin option tells Cargo that we want to make an executable program (a
+   binary). A folder with the same name as the project is created; in this
+   folder, you can put all kinds of general information such as a "License"
+   file, a "README" file, and so on.
+   In addition, a "src" subfolder is created that contains a template source
+   file named "main.rs".
+   The file "Cargo.toml" is the configuration file or manifest of your pro-
+   ject; it contains all the metadata that Cargo needs to compile your pro-
+   ject. It contains the following text with information about your project:
+
+   [package]
+   name = "welcome"
+   version = "0.0.1"
+   authors = ["nachoba <0800nacho@gmail.com>"]
+
+   [dependencies]
+
+   This file is editable, so other sections can be added. For example, you can
+   add a section to tell Cargo that we want a binary with the name "wilcomen"
+
+   [[bin]]
+   name = "wilcomen"
+
+2. We can build our project (no matter how many source files it contains) using
+   the following command:
+    cargo build
+
+   This gives us the following output:
+
+    Compiling welcome v0.1.0 (file:///C:/Users/nakki/Workspace/welcome)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.55 secs
+
+   Now, the folder structure changes, adding a "target" folder containing
+   many a folder called "debug". Inside this subfolder is the executable file
+   "wilcomen.exe"
+
+3. To execute this program, run the following command:
+    cargo run
+
+   This produces the following output:
+    
+     Finished dev [unoptimized + debuginfo] target(s) in 0.0 secs
+      Running `target\debug\welcome.exe`
+   Hello, world!
+
+   Step 2 has also produced a file named "Cargo.lock"; this is used by Cargo
+   to keep track of dependencies in your application. At the moment, the ap-
+   plication only contains:
+
+    [root]
+    name = "welcome"
+    version = "0.1.0"
+
+   The same file format is used to lock down the version of libraries or pac-
+   kages that your project depends on. If your project is buit in the future
+   when updated versions of the libraries are available, Cargo will make sure
+   that only the versions recorded in "Cargo.lock" are used so that your pro-
+   ject is not built with an incompatible version of a library. This ensures a
+   repeatable build process.
+
+The website at http://crates.io/ is the central repository for Rust packages or
+crates (as they are called). You can search for crates using specific terms or
+browse them alphabetically or according to the number of downloads.
+
+The Developer Tools
+-------------------
+All you need to develop in Rust is a text editor. Rust plugins exists for a lot
+of editors. Most Rust developers work with Vim or Emacs. These come with a syn-
+tax highlighting, and code completion tool called "racer". You can learn more
+about it here: https://github.com/phildawes/racer
+
+For SublimeText you can check Rust-Enhanced and SublimeLinter which provides an
+interface to "rustc", and checks on your code for stylistic or programming
+errors.
+
+Finally, there is an interactive shell or REPL called "rusti" that is being de-
+veloped, check here for more information: https://github.com/murarth/rusti
+
+ 

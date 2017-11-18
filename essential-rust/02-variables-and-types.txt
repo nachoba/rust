@@ -1,0 +1,578 @@
+Rust Essentials
+===============
+Chapter 2 :: Using Variables and Types
+--------------------------------------
+In this chapter we will look at the basic building blocks of a Rust program:
+variables and their types. We will cover the following topics:
+
+	* Comments
+	* Global constants
+	* Values and primitive types
+	* Binding variables to values
+	* Scope of a variable and shadowing
+	* Type checking and conversions
+	* Expressions
+	* The stack and the heap
+
+Our code examples will center on building a text-based game called: Monster
+Attack.
+
+Comments
+--------
+Ideally, a program should be self-documenting by using descriptive variable
+names and easy to read code, but there are always cases where additional com-
+ments about a program's structure or algorithms are needed. Rust follows the C
+convention and has the following convention for marking comments:
+	* Line comments:	// Everything on the line after the // is a comment
+	* Block comments:	/* Everything between /* */ are comments */
+
+The preferred Rust style is to use only line comments even for multiple lines,
+and use /* */ to comment out code.
+
+Rust also has a doc comment (///) that is useful in larger projects that re-
+quire an official documentation for customers and developers. Such comments
+have to appear before an item (like a function) on a separate line to docu-
+ment that item. In these comments, you can use Markdown formatting syntax;
+for more information go here: https://en.wikipedia.org/wiki/Markdown
+
+The "rustdoc" tool can compile these comments into a project's documentation.
+
+Global Constants
+----------------
+An application needs a few values that are in fact constants; they do not
+change in the course of the program. For example, the name of our game, which
+is "Monster Attack", is a constant, as is the maximum value of health, which is
+the number 100.
+We must be able to use them in "main" or in any other function in our program,
+so they are place at the top of the code file.
+They live in the global scope of the program. Such constants are declared with
+the "static" keyword as follows:
+
+	static MAX_HEALTH:	i32				=	100;
+	static GAME_NAME: &'static str		= "Monster Attack";	
+
+	fn main() {
+		...
+		...
+	}
+
+
+Names of constants must be in uppercase and underscores can be used to separate
+words. Their types must also be indicated. For instance:
+MAX_HEALTH is a 32-bit integer (i32) and GAME_NAME  is a string (str). As we'll
+discuss further, the declaration of types for variables is done in exactly the
+same way although this is often optional when the compiler can infer the type
+from the code's context.
+
+The "&" annotation is a reference, it contains the memory address of a value.
+Note that if we only use "&str" and compile, we get an error for that line.
+The error states that we must add the lifetime specifier to the type annotation
+so "'static" should be added to complete. The lifetime of an object in Rust is
+very important because it says how long the object will live in the program's
+memory. The Rust compiler add the code to remove an object when its lifetime is
+over, freeing the memory that it occupied.
+The "static" lifetime is the longest possible lifetime; such an object stays
+alive throughout the entire application, and so it is available to all of its
+code.
+
+Besides static values, we can also use simple constant values whose value never
+changes. Constants always have to be typed, for example:
+
+	const PI: f32 = 3.1415;
+
+These kind of constants are more local in scope than static values. The compi-
+ler automatically substitutes the value of the constant everywhere in the code.
+
+Printing with String Interpolation
+----------------------------------
+An obious way to use variables is to print out their values.
+
+	fn main() {
+		const PI: f32 = 3.1415;
+		println!("The Game you are playing is called {}.", GAME_NAME);
+		println!("You start with {} health points.", MAX_HEALTH);
+	}
+
+The constant PI exists in the standard library, to use this value insert this
+statement at the top of the source file:
+
+	use std::f32::consts;
+
+and then use the PI value as follows:
+
+	println!("The value of PI is {}", consts::PI);
+
+
+The first argument of println! is a literal format string that contains a {}
+placeholder. The value of the constant or variable after the comma is converted
+to a string and replaces the {}.
+There can be more than one placeholder, and they can be numbered in order so
+that they can be used repeadtedly, as shown in the following code:
+
+	println!("In the game {0} you start with {1} % health,
+				yes you read it correctly: {1} points!", GAME_NAME, MAX_HEATH);
+
+The output is as follows:
+
+	In the game Monster Attack you start with 100 % health, yes you read it
+	correctly: 100 points!
+
+The placeholder can also contain one or more named arguments, as follows:
+
+	println!("You have {point} % health", points = 70);
+
+Special ways of formatting can be indicated inside {} after a colon (:), as
+follows:
+
+	println!("MAX_HEALTH is {:x} in hexadecimal", MAX_HEALTH);
+	println!("MAX_HEALTH is {:b" in binary", MAX_HEALTH);
+	println!("Pi is {:e} in floatin point notation", consts::PI);
+
+The following formatting possibilities exist according to the type that must
+be printed:
+
+	* o 	for octal
+	* x		for lower hexadecimal
+	* X 	for upper hexadecimal
+	* p 	for a pointer
+	* b 	for binary
+	* e 	for lower exponential notation
+	* E 	for upper exponential notation
+	* ? 	for debugging purposes
+
+The "format!" macro has the same parameters and works in the same way as the
+"println!" macro does, but it returns a string instead of printing out.
+Go to: http://doc.rust-lang.org/std/fmt/  for an overview of all the possibi-
+lities.
+
+Values and Primitive Types
+--------------------------
+Constants that have been initialized have a value. Values exist in different
+types:
+		70		is an integer
+		3.14	is a float
+		z 		is a character (char) are unicode values that take 4 bytes of
+		        memory each.
+		God		is a string of type &str (which is unicode UTF8 by default)
+		true	is a boolean (bool) type, the same as false
+
+Integers can be written in different formats:
+	* Hexadecimal format with 0x 		0x46			for 70
+	* Octal format with       0o		0o106			for 70
+	* Binary format with	  0b		0b1000110		for 70
+
+Underscores can be used for readability, as in 1_000_000. Sometimes the com-
+piler will urge you to indicate more explicitly the type of number with a suf-
+fix. For example, the number after "u" or "i" is the number of memory bits used
+namely 8, 16, 32, or 64:
+
+	* 10usize		denotes an unsigned integer of machine word size "usize", 
+	                which can be any of the u18, u16, u32, or u64 types.
+	* 10isize		denotes a signed integer of machine word size "isize",
+	                which can be any of the types among i8, i16, i32, and i64.
+	* In the preceding cases, for a 64-bit operating system "usize" is in fact
+	  u64 and "isize" is equivalent to i64.
+	* 3.14f32 denotes a 32-bit floating point number.
+	* 3.14f64 denotes a 64-bit floating point number.
+
+The numeric types "i32" and "f64" are the defaults if no suffix is given, but
+in that case, to differentiate between them, you must end an "f64" value with
+a ".0" like this:
+
+	let e = 7.0;
+
+Indicating a specific type is only needed when the compiler signals that it
+cannot infer the type of the variable.
+
+Rust is like any other C-like language when it comes to the different operators
+that exist on values and their precedence. You can see more information on:
+http://doc.rust-lang.org/reference.html#binary-operator-expressions
+However, note that Rust does not have increment (++) or decrement (--) opera-
+tors. To compare values for equality, use == and to test whether they are dif-
+ferent use !=.
+
+There is even the empty value "()" of zero size, which is the only value of the
+so-called unit type (). This is used to indicate the return value when an ex-
+pression or a function returns nothing (no value), as is the case for a func-
+tion that only prints to the console.
+"()" is not the equivalent of a null value in other languages; "()" means no
+value, whereas "null" is a value.
+
+Binding Variables to Values
+---------------------------
+In Rust, we can bind a value to a variable by using a "let" binding. For ins-
+tance:
+
+	let energy = 5;
+
+The compiler will warn agains variables declared and not used. For prototyping
+purposes, you can suppress the warning by prefixing the variable name with an
+underscore _, like this:
+
+	let _ energy = 5;
+
+In general, _ is used for variables that we don't need.
+
+Note that we didn't need to indicate the type; Rust inferred the type of the
+variable to be an integer. If the type is not obvious, the compiler searches in
+the code context to check from where the variable gets a value or how it is
+used.
+
+However, giving type hints like:
+
+	let energy = 5u16;
+
+is also okay, you help the compiler a bit by indicating the type of energy,
+which is a 2-byte unsigned integer in this case. Also, the type hint can be
+written as:
+
+	let energy = 5_u16;
+
+Declarations can replace previous declarations of the same variable. A state-
+ment like:
+
+	let energy = "Abundant";
+
+would now bind energy to the value "Abundant" of string type. The old declara-
+tion can no longer be used and its memory is freed.
+
+Mutable and Immutable Variables
+-------------------------------
+Variables in Rust are by default immutable, which is very similar to what func-
+tional languages do. If you want a mutable variable, you have to indicate that
+explicitly with "mut", like this:
+
+	let mut fuel = 34;
+	fuel = 60;
+
+Simply declaring a variable as:
+
+	let n;
+
+is also not enough, the compiler needs a value to infer its type. We can give
+the compiler this information by assigning a value to n, like:
+
+	let n = -2;
+
+or we could also indicate its type as follows:
+
+	let n: i32;
+
+Or combine both:
+
+	let n: i32 = -2;
+
+The type (here i32) follows the variable name after a colon (:), optionally
+followed by an initialization. In general the type is indicated like:
+
+	n: T
+
+	where n is a variable and T is a type, and it is read as: variable n is of
+	the type T.
+
+Local variables have to be initalized before they can be used in order to pre-
+vent undefined behavior.
+
+Scope of a Variable and Shadowing
+---------------------------------
+The scope of a variable defined within a function is that function. You can
+even make a more limited scope inside a function by defining a code block that
+contains all the code within a pair of curly braces {}, as in the following
+code: (003-scope-variables.rs)
+
+	fn main() {
+		let outer = 42;
+		{	// start of the code block
+			let inner = 3.14;
+			println!("block variable inner: {}", inner);
+			let outer = 99;  // shadows the first outer variable
+			println!("block variable outer: {}", outer);
+		}	// end of code block
+		println!("outer variable (outside the block)", outer;)
+	}
+
+A variable defined in the block (like "inner") is only known inside the block.
+A variable in the block can also have the same name as a variable in an enclo-
+sing scope (like "outer"), which is replaced (shadowed) by the block variable
+until the block ends.
+A code block can return a value that can be bound to a variable with a "let"
+statement, also a code block can also be empty { }.
+
+Type Checking and Conversions
+-----------------------------
+Rust has to know the type of each variable so that it can check at compile time
+whether they are only used in the manner in which their type permits. This way
+programs are type safe and a whole range of bugs can be avoided.
+
+This also means that we cannot change the type of a variable during its life-
+time because of static typing. The following snippet produces an error:
+
+	fn main() {
+		let score: i32 = 100;
+		score = "THIS IS AN ERROR";
+	}
+
+However, we are allowed to write the follogin:
+
+	fn main() {
+		let score: i32 = 100;
+		let score = "This is OK";
+	}
+
+Rust lets us redefine variables; each "let" binding creates a new variable that
+hides the previous one, which is freed from memory. This is quite useful be-
+cause variables are immutable by default.
+
+To concatenate string in Rust you cannot use the "+" operator, you can use the
+"to_string()" method to convert the value to a string type like this:
+
+	let player1 = "Rob";
+	let player2 = "Jon";
+	//	this is not allowed:	let player3 = player1 + player2;
+	let player3 = player1.to_string() + player2;
+
+Or we can use the "format!" macro like this:
+
+	let player3 = format!("{0} {1}", player1, player2);
+
+In both cases, player3 has the value "RobJon".
+
+Also, Rust does not permit automatic (or implicit) conversions of one type to
+another, avoiding a lot of hard-to-find bugs. We can do an explicit conversion
+(a casting) with the "as" keyword:
+
+	let points: i32 = 10;
+	let mut saved_points: u32;
+
+	saved_points = points as u32;
+
+When "points" contain a negative value, the sign would be lost after the con-
+version. Similarly, when casting from a wider value like a float to an integer,
+the decimal part is truncated:
+
+	let f2: f32 = 3.14;
+	let mut saved_points: u32;
+
+	saved_points = f2 as u32;  // truncation to value 3 occurs
+
+In addition, the value must be convertible to the new type as a string cannot
+be converted to an integer, as show in the following example:
+
+	let mage = "Gandalf";
+	let saved_points: u32;
+
+	saved_points = mag as u32;	// error: non-scalar cast.
+
+See 004-casting.rs
+
+Aliasing
+--------
+It can be useful sometimes to give a new, more descriptive or a shorter name to
+an existing type. This can be done with the "type" keyword, as in the following
+example, where we need a specific (but size-limited) variable for MagicPower:
+
+	type MagicPower = u16;
+
+	fn main() {
+		let run: MagicPower = 7800;
+	}
+
+A type name starts with a capital letter, as does each word that is part of the
+name. Of course, the same restrictions of the underlying type apply to the new
+alias.
+
+Expressions
+-----------
+Rust is an "expression-oriented" language, which means that most pieces of code
+are in fact expressions, that is, they compute a value and return that value,
+in that sense, values are also expressions. 
+However, expressions by themselves do not form meaningful code; they must be
+used in statements.
+
+The "let" bindings like the following are declaration statements; they are not
+expressions:
+
+	let a = 2;		// a binds to 2
+	let b = 5;		// b binds to 5
+	let n = a + b;	// n binds to 7
+
+However, "a + b" is an expression, and if we omit the semicolon at the end, the
+resulting value (in this case 7) is returned. This is often used when a func-
+tion needs to return its value.
+Ending an expression with a semicolon like "a + b;" suppresses the value of the
+expression, thereby throwing away the return value and making it an expression
+statement that returns the unit value "()".
+A code is usually a sequence of statements, one on each code line, and Rust has
+to know when a statement ends; this is why nearly every Rust code line ends
+with a semicolon.
+
+What do you think the following assignment is:
+
+	m = 42;
+
+This is not a binding because there is no "let". That should have happened on a
+previous code line. It is an expression that returns the unit value "()". 
+
+A compound binding like:
+
+	let p = q = 3; 
+
+is not allowed in Rust; it returns an error. However, you can chain "let" bin-
+dings like this:
+
+	let mut n = 0;
+	let mut m = 1;
+	let t = m; m = n; n = t;
+	println!("{} {} {}", n, m, t);	// prints 1 0 1 
+
+See 005-compound-let.rs for another example.
+
+A code block is also an expression, which will return the value of its last
+expression if we omit the semicolon. For example, in the following code snip-
+pet, "n1" gets the value 7, but "n2" gets no value (or rather the unit value
+"()") because the return value of the second code block was suppressed:
+
+	let n1 = {
+		let a = 2;
+		let b = 5;
+		a + b 						// <-- no semicolon!
+	};								// The semicolon is needed!!
+	println!("n1 is: {}", n1);		// prints: n1 is 7
+
+	let n2 = {
+		let a = 2;
+		let b = 5;
+		a + b;
+	};								// The semicolon is needed!!
+	println!("n2 is: {:?}", n2);	// prints: n2 is ()
+
+Here, the variables "a" and "b" are declared in a code block and live only as
+long as the block itself lives as they are local to the block. Note that the
+semicolon after the closing brace of the block "};" is needed. To print the
+unit value () we need {:?} as the format specifier.
+See 006-code-blocks.rs for an example.
+
+The Stack and the Heap
+----------------------
+Since memory allocation is very important in Rust, we must have a good picture
+of what is going on. A program's memory is divided into the "stack" and the
+"heap" memory parts.
+To know more about these concepts read the information on the classic web page
+at: https://stackoverflow.com/questions/79923/what-and-where-are-the-stack-and-heap
+
+Primitive values such as numbers, character, and true/false values are stored
+on the stack, while the value of more complex objects that could grow in size
+are stored in the heap memory.
+
+Heap values are referenced by a variable on the stack, which contains the memo-
+ry address of the object on the heap.
+While the stack has a limited size, the size of the heap can grow as and when
+more space is needed.
+
+We will run the following program and try to visualize the program's memory:
+
+	let health = 32;
+	let mut game = "Space Invaders";
+
+Values are stored in memory and so they have memory addresses. The "health"
+variable contains an integer value 32 that is stored in the stack at location
+0x32fba4, while the variable "game" contains a string, which is stored in the
+heap starting at location 0x23fb90. (The addresses may vary when running the
+program).
+
+The variables to which the values are bound are pointers or references to the
+values. They point to them; "game" is a reference to "Space Invaders". The 
+address of a value is given by the "&" operator. So, "&health" is the address
+where value 32 is stored, and "&game" is the address where the "Space Inveders"
+value is stored.
+
+We can print these addresses by using the format string {:p} for pointers like
+this:
+
+	println!("address of health-value: {:p}", &health);
+	println!("address of   game-value: {:p}", &game);
+
+
+We can make an alias, which is another reference that points to the same place
+in memory, like this:
+
+	let game2 = &game;
+	println!("address of   game2-value: {:p}", game2);
+
+To get the value that is being referred to rather than the "game2" reference
+itself, dereference it with the asterisk * operator like this:
+
+	println!("The contents of address {:p} is {}", game2, *game2);
+	println!("The contents of address {:p} is {}", &game, game);
+
+See: 007-pointers.rs
+
+We know already that a "let" binding is immutable, so the value cannot be chan-
+ged:
+
+	health = 33;	// error: re-assignmentof immutable variable
+
+If "y" is declared with:
+
+	let y = &health;
+
+Then "*y" is the value 32. Reference variables can also be given a type like:
+
+	let x: &i64;
+
+And such references can be passed around in code. After this "let" biding, "x"
+does not really point yet to a value and it does not contain a memory address.
+In Rust, there is no way to create a null pointer as you can in other langua-
+ges; if you try to assign a nil, null, or even a unit value () to "x", this
+will result in an error.
+This feature alone save Rust programmers from countless bugs. Furthermore, try-
+ing to use "x" in an expression; for example:
+
+	println!("{:?}", x);
+
+will result in the following error:
+	
+	error: use of possibly uninitialized variable: `x`error.
+
+A mutable reference to an immutable variable is forbiden; otherwise, the im-
+mutable variable could be changed through its mutable reference:
+
+	let tricks = 10;
+	let ref-tricks = &mut tricks; 	// This is an error
+
+This give the error: cannot borrow immutable local variable `tricks` as mutable
+
+A reference to a mutable variable can either be immutable or mutable respecti-
+vely. For instance, a reference to a mutable variable "score":
+
+	let mut score = 0;
+	let score2 = &score;
+	// error: cannot assign to immutable borrowd content *score2
+	// *score2 = 5;
+
+	let score3 = &mut score;
+	*score3 = 5;
+
+The value of "score" can be only changed through a mutable reference such as
+"score3". You can only make one mutable reference to a mutable variable. If we
+try to do this:
+
+	let score4 = &mut score;
+
+We will get the following error: cannot borrow `score` as mutable more than
+once at a time.
+
+Here, we touch the hear of Rust's memory safety system, where borrowing a va-
+riable is one of its key concepts.
+The heap is a much larger memory part than the stack, so its important that
+memory locations are freed as soon as they are no longer needed. The Rust com-
+piler sees when a variable ends its liftime (or in other words, goes out of
+scope) and inserts a code at compile time to free its memory when the code is
+executed. This behavior is unique to Rust and is not present in other commonly
+used languages. Stack values can be boxed, that is, allocated in the heap by
+creating a "Box" around them, as in the case for the value of x in the follo-
+wing code:
+
+	let x = Box::new(5i32);
+
+Box is an object that references a value on the heap. 
