@@ -3,10 +3,10 @@
  *  CHAPTER 3   ::  VARIABLES AND MUTABILITY
  *  ----------------------------------------------------------------------------
  *  All variables are, by default immutable. This is one of the way Rust encou-
- *  rages you to write your code in a way that takes advance of the safety and 
+ *  rages you to write your code in a way that takes advantage of the safety and 
  *  easy concurrency that Rust offers.
  *  However, you still have the option to make your variables mutable. When a
- *  variable is immutable, that means that once a value is bound to a name, you
+ *  variable is immutable, it means that once a value is bound to a name, you
  *  can't change that value. For example:
  */
 
@@ -35,8 +35,8 @@ fn main() {
  * the variable name. 
  *
  * In addition to allowing this value to change, it conveys intent to future rea-
- * ders of the ode by indicating that other parts of the code will be changing
- * this variable value.
+ * ders of the code by indicating that other parts of the code will be changing
+ * this variable's value.
  */
 
     let mut z = 5;
