@@ -5,6 +5,7 @@ All my files related to rust-lang.
 
 Contents:
 ---
+03/12/17
 
 **/codewars**.         [Files of codewars.com katas]
 
