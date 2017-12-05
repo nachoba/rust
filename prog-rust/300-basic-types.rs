@@ -321,4 +321,46 @@
  *
  * Pointer Types
  * -------------
+ * Rust has several types that represent memory addresses. The language is designed to
+ * help keep allocations to a minimum. Values nest by default. The value:
+ *
+ *      ((0, 0), (1440, 900))
+ *
+ * is stored as four adjacent integers. If you store it in a local variable, you've got
+ * a local variable four integers wide. Nothing is allocated in the heap.
+ *
+ * This is great for memory efficiency, but as a consequence, when a Rust program needs
+ * values to point to other values, it must use pointer types explicitly. The good news
+ * is that the pointer types used in safe Rust are constrained to eliminate undefined
+ * behavior, so pointers are much easier to use correctly. There are three pointer
+ * types:
+ *
+ *      [a]. References
+ *      [b]. Boxes
+ *      [c]. Unsafe pointers
+ *
+ * [a]. References
+ * ---------------
+ * A value of type "&str" (pronounced "ref String") is a reference to a "String" value,
+ * a "&i32" is a reference to an "i32", and so on.
+ * A reference can point to any value anywhere, stack or heap. The expression "&x" pro-
+ * duces a reference to "x"; in Rust terminology, we say that it borrows a reference to
+ * "x". Given a reference "r", the expression "*r" refers to the value "r" points to.
+ * These are very much like the "&" and "*" operators in C. And like a C pointer, a
+ * reference does not automatically free any resources when it goes out of scope.
+ *
+ * References in Rust are never null: there is simply no way to produce a null reference
+ * in safe Rust. And Rust references are immutable by default:
+ *
+ *      &T
+ *          immutable reference, like const T* in C
+ *
+ *      &mut T
+ *          mutable reference, like T* in C
+ *
+ * Rust tracks the ownership and lifetimes of values, so mistakes like dangling poin-
+ * ters, double frees, and pointer invalidation are ruled out at compile time.
+ *
+ * [b]. Boxes
+ * ----------
  *
