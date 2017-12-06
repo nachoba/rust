@@ -363,4 +363,59 @@
  *
  * [b]. Boxes
  * ----------
+ * The simplest way to allocate a value in the heap is to use "Box::new".
  *
+ *      let t = (12, "eggs");
+ *      let b = Box::new(t);    // allocate a tuple in the heap
+ *
+ * The type of "t" is "(i32, &str)", so the type of "b" is "Box<(i32, &str)>.
+ * "Box::new()" allocates enough memory to contain the tuple on the heap. When "b"
+ * goes out of scope, the memory is freed immediatly, unless "b" has benn moved -by
+ * returning it, for example. Moves are essential to the way Rust handles heap-allocated
+ * values.
+ *
+ * [c]. Usafe Pointers (Raw Pointers)
+ * ----------------------------------
+ * Rust also has the raw pointer types "*mut T" and "*const T". Raw pointers really are
+ * just like pointers in C++. Using a raw pointer is unsafe, because Rust makes no ef-
+ * fort to track what it points to. For example, raw pointers may be null, or they may
+ * point to memory that has been freed or that now contains a value of a different type.
+ * All the classic pointer mistakes of C++ are offered here.
+ * You may only dereference raw pointers within an "unsafe" block. An "unsafe" block is
+ * Rust's opt-in mechanism for advanced language features whose safety is up to you.
+ *
+ *
+ * Arrays, Vectors, and Slices
+ * ---------------------------
+ * Rust has three types for representing a sequence of values in memory:
+ *
+ *      [a]. The type "[T; N]" represents an array of N values, each of type T. An
+ *           array's size is a constant determined at compile time, and is part of the
+ *           type; you can't append new elements, or shrink an array.
+ *
+ *      [b]. The type "Vec<T>", called a vector of Ts, is a dynamically allocated, gro-
+ *           wable sequence of values of type T. A vector's elements live on the heap,
+ *           so you can resize vectors at will: push new elements onto them, append
+ *           other vectors to them, delete elements, and so on.
+ *
+ *      [c]. The types "&[T]" and "&mut [T]", called a shared slice of Ts and mutable
+ *           slice of Ts, are references to a series of elements that are a part of
+ *           some other value, like an array or vector. You can think of a slice as a
+ *           pointer to its first element, together with a count of the number of ele-
+ *           ments you can access starting at that point. A mutable slice "&mut [T]"
+ *           lets you read and modify elements, but can't be shared; a shared slice
+ *           "&[T]" lets you share access among several readers, but doesn't let you
+ *           modify elements.
+ *
+ * Given a value "v" of any of these three types, the expression "v.len()" gives the
+ * number of elements in "v", and "v[i]" refers to the i'th element of "v". The first
+ * element is v[0], and the last element is v[v.len() - 1].
+ * Rust checks that i always falls within this range; if it doesn't, the expression
+ * panics. The length of v may be zero, in which case any attempt to index it will
+ * panic. i must be a "usize" value; you can't use any other integer type as an index.
+ *
+ * Arrays
+ * ------
+ *
+ *
+ */
