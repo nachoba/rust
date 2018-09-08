@@ -50,6 +50,12 @@ fn binsearch<T: PartialOrd>(target: &T, collection: &[T]) -> Option<usize> {
 
 
 
+// This routine is not complete yet
+//
+
+
+
+
 #[test]
 fn test_present() {
     // i32
